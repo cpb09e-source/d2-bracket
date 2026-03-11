@@ -259,16 +259,18 @@ export default function App() {
   const [tab, setTab] = useState("picks");
 
   useEffect(() => {
-    async function boot() {
-      try {
-        const state = await fetchRemoteState();
-        setAppState(state);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+  async function boot() {
+    try {
+      const state = await fetchRemoteState();
+      setAppState(state);
+    } catch (error) {
+      console.error(error);
+      alert(`Firebase load failed: ${error.message}`);
+      setAppState(blankAppState());
+    } finally {
+      setLoading(false);
     }
+  }
     boot();
   }, []);
 

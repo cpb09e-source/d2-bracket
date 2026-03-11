@@ -15,11 +15,20 @@ const SETTINGS_COLLECTION = "bracket_settings";
 const SETTINGS_DOC_ID = "d2-2026";
 const ENTRIES_COLLECTION = "bracket_entries";
 
+function withTimeout(promise, ms = 8000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Firestore timed out")), ms)
+    ),
+  ]);
+}
+
 export async function fetchRemoteState() {
   const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID);
-  const settingsSnap = await getDoc(settingsRef);
 
-  const entriesSnap = await getDocs(collection(db, ENTRIES_COLLECTION));
+  const settingsSnap = await withTimeout(getDoc(settingsRef));
+  const entriesSnap = await withTimeout(getDocs(collection(db, ENTRIES_COLLECTION)));
 
   const base = blankAppState();
   const stateJson = settingsSnap.exists() ? settingsSnap.data().state_json : base;
